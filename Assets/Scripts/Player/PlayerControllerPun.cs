@@ -23,11 +23,15 @@ public class PlayerControllerPun : MonoBehaviourPun
     private Rigidbody2D rb;
     private Animator anim;
     private PlayerScore playerScore;
-
     private float moveInput;
     private bool jumpPressed;
     private bool isGrounded;
     private bool alive = true;
+
+    // Separate keys per player
+    private KeyCode leftKey;
+    private KeyCode rightKey;
+    private KeyCode jumpKey;
 
     private void Awake()
     {
@@ -42,32 +46,47 @@ public class PlayerControllerPun : MonoBehaviourPun
         {
             if (playerCamera != null)
                 playerCamera.gameObject.SetActive(false);
+            rb.bodyType = RigidbodyType2D.Kinematic;
             return;
         }
 
         if (playerCamera != null)
             playerCamera.gameObject.SetActive(true);
+
+        // Actor 1 = Sunling = WASD
+        // Actor 2 = Moonling = Arrow Keys
+        if (PhotonNetwork.LocalPlayer.ActorNumber == 1)
+        {
+            leftKey = KeyCode.A;
+            rightKey = KeyCode.D;
+            jumpKey = KeyCode.W;
+        }
+        else
+        {
+            leftKey = KeyCode.LeftArrow;
+            rightKey = KeyCode.RightArrow;
+            jumpKey = KeyCode.UpArrow;
+        }
     }
 
     private void Update()
     {
-        if (!photonView.IsMine || !alive)
-            return;
+        if (!photonView.IsMine || !alive) return;
 
-        moveInput = Input.GetAxisRaw("Horizontal");
+        moveInput = 0f;
+        if (Input.GetKey(leftKey)) moveInput = -1f;
+        if (Input.GetKey(rightKey)) moveInput = 1f;
 
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetKeyDown(jumpKey) && isGrounded)
             jumpPressed = true;
 
         HandleFlip();
         HandleAnimations();
-        HandleActions();
     }
 
     private void FixedUpdate()
     {
-        if (!photonView.IsMine || !alive)
-            return;
+        if (!photonView.IsMine || !alive) return;
 
         CheckGround();
         Run();
@@ -76,16 +95,14 @@ public class PlayerControllerPun : MonoBehaviourPun
 
     private void Run()
     {
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y); // UPDATE
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
     }
 
     private void Jump()
     {
         if (!jumpPressed) return;
-
-        rb.linearVelocity = new Vector2(rb.linearVelocity .x, 0f); // UPDATE
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-
         anim.SetBool("isJump", true);
         jumpPressed = false;
     }
@@ -93,17 +110,15 @@ public class PlayerControllerPun : MonoBehaviourPun
     private void CheckGround()
     {
         if (groundCheck == null) return;
-
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
-        if (isGrounded && rb.linearVelocity .y <= 0.05f)
+        isGrounded = Physics2D.OverlapCircle(
+            groundCheck.position, groundCheckRadius, groundLayer);
+        if (isGrounded && rb.linearVelocity.y <= 0.05f)
             anim.SetBool("isJump", false);
     }
 
     private void HandleFlip()
     {
         if (spriteRenderer == null) return;
-
         if (moveInput > 0) spriteRenderer.flipX = false;
         else if (moveInput < 0) spriteRenderer.flipX = true;
     }
@@ -114,15 +129,7 @@ public class PlayerControllerPun : MonoBehaviourPun
         anim.SetBool("isRun", isRunning);
     }
 
-    private void HandleActions()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) anim.SetTrigger("attack");
-        if (Input.GetKeyDown(KeyCode.Alpha2)) anim.SetTrigger("hurt");
-        if (Input.GetKeyDown(KeyCode.Alpha3)) { anim.SetTrigger("die"); alive = false; rb.linearVelocity  = Vector2.zero; }
-        if (Input.GetKeyDown(KeyCode.Alpha0)) { anim.SetTrigger("idle"); alive = true; }
-    }
-
-    [PunRPC] //NEW
+    [PunRPC]
     public void AddScoreRPC(int amount)
     {
         playerScore.AddScore(amount);

@@ -942,8 +942,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dc9bb1e7fed4fe4eb2f4e49b669b757, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomManagerPun
-  sunlingPrefab: {fileID: 8490033007903993337, guid: f88f9b3ffee9b414d83f0f8d7eed679a, type: 3}
-  moonlingPrefab: {fileID: 1280768934915906203, guid: cdc0d4807cd7e894298f6eb4cbf898ed, type: 3}
+  sunlingPrefab: {fileID: 7866885747088265537, guid: 1daaaf379b2aca2418b29666c47b1ffa, type: 3}
+  moonlingPrefab: {fileID: 5803260221267551767, guid: cdc0d4807cd7e894298f6eb4cbf898ed, type: 3}
   sunlingSpawnPoint: {fileID: 435764775}
   moonlingSpawnPoint: {fileID: 1000181548}
   roomCodeText: {fileID: 1887297318}

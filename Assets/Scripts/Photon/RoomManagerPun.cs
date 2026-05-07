@@ -67,6 +67,7 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdateReadyText();
+        ShowRoomCode();
     }
 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
@@ -77,6 +78,9 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
 
     private void SpawnPlayer()
     {
+        string tag = PhotonNetwork.LocalPlayer.ActorNumber == 1 ? "Sunling" : "Moonling";
+        if (GameObject.FindGameObjectWithTag(tag) != null) return;
+
         string prefabId;
         Transform spawnPoint;
         string nickname;
@@ -100,11 +104,12 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
 
     private void ShowRoomCode()
     {
-        if (roomCodeText != null && PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("roomCode"))
-        {
-            string code = (string)PhotonNetwork.CurrentRoom.CustomProperties["roomCode"];
-            roomCodeText.text = code;
-        }
+        if (roomCodeText == null) return;
+
+        if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("roomCode"))
+            roomCodeText.text = (string)PhotonNetwork.CurrentRoom.CustomProperties["roomCode"];
+        else
+            roomCodeText.text = PhotonNetwork.CurrentRoom.Name;
     }
 
     private void SetupMasterButton()
@@ -145,7 +150,8 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
         if (readyText == null) return;
 
         int ready = GetReadyCount();
-        readyText.text = ready + "/2";
+        int total = PhotonNetwork.CurrentRoom.PlayerCount;
+        readyText.text = ready + "/" + total;
 
         if (ready >= 2 && PhotonNetwork.IsMasterClient)
         {
@@ -160,5 +166,8 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
     {
         if (startupPanel != null) startupPanel.SetActive(false);
         if (playerHUD != null) playerHUD.SetActive(true);
+
+        if (PhotonNetwork.IsMasterClient)
+            PhotonNetwork.LoadLevel("GamePlay");
     }
 }

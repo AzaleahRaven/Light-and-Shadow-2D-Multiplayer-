@@ -1,5 +1,6 @@
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -23,15 +24,15 @@ public class PlayerControllerPun : MonoBehaviourPun
     private Rigidbody2D rb;
     private Animator anim;
     private PlayerScore playerScore;
+
     private float moveInput;
     private bool jumpPressed;
     private bool isGrounded;
     private bool alive = true;
 
-    // Separate keys per player
-    private KeyCode leftKey;
-    private KeyCode rightKey;
-    private KeyCode jumpKey;
+    // Control type set on prefab
+    public enum ControlScheme { WASD, ArrowKeys }
+    [SerializeField] public ControlScheme controlScheme = ControlScheme.WASD;
 
     private void Awake()
     {
@@ -42,8 +43,12 @@ public class PlayerControllerPun : MonoBehaviourPun
 
     private void Start()
     {
-        if (!photonView.IsMine)
+        bool isSinglePlayer = PhotonNetwork.CurrentRoom != null &&
+                              PhotonNetwork.CurrentRoom.PlayerCount == 1;
+
+        if (!isSinglePlayer && !photonView.IsMine)
         {
+            // Multiplayer: disable camera and physics for remote players
             if (playerCamera != null)
                 playerCamera.gameObject.SetActive(false);
             rb.bodyType = RigidbodyType2D.Kinematic;
@@ -51,34 +56,42 @@ public class PlayerControllerPun : MonoBehaviourPun
         }
 
         if (playerCamera != null)
-            playerCamera.gameObject.SetActive(true);
+            playerCamera.gameObject.SetActive(photonView.IsMine);
 
-        // Actor 1 = Sunling = WASD
-        // Actor 2 = Moonling = Arrow Keys
-        if (PhotonNetwork.LocalPlayer.ActorNumber == 1)
-        {
-            leftKey = KeyCode.A;
-            rightKey = KeyCode.D;
-            jumpKey = KeyCode.W;
-        }
-        else
-        {
-            leftKey = KeyCode.LeftArrow;
-            rightKey = KeyCode.RightArrow;
-            jumpKey = KeyCode.UpArrow;
-        }
+        Debug.Log($"[PlayerControllerPun] {gameObject.name} | Scheme: {controlScheme}");
     }
 
     private void Update()
     {
-        if (!photonView.IsMine || !alive) return;
+        if (!alive) return;
+        if (Keyboard.current == null) return;
 
+        bool isSinglePlayer = PhotonNetwork.CurrentRoom != null &&
+                              PhotonNetwork.CurrentRoom.PlayerCount == 1;
+
+        bool canControl = isSinglePlayer ?
+                         PhotonNetwork.IsMasterClient :
+                         photonView.IsMine;
+
+        if (!canControl) return;
+
+        // Read input based on control scheme
         moveInput = 0f;
-        if (Input.GetKey(leftKey)) moveInput = -1f;
-        if (Input.GetKey(rightKey)) moveInput = 1f;
 
-        if (Input.GetKeyDown(jumpKey) && isGrounded)
-            jumpPressed = true;
+        if (controlScheme == ControlScheme.WASD)
+        {
+            if (Keyboard.current.aKey.isPressed) moveInput = -1f;
+            if (Keyboard.current.dKey.isPressed) moveInput = 1f;
+            if (Keyboard.current.wKey.wasPressedThisFrame && isGrounded)
+                jumpPressed = true;
+        }
+        else // ArrowKeys
+        {
+            if (Keyboard.current.leftArrowKey.isPressed) moveInput = -1f;
+            if (Keyboard.current.rightArrowKey.isPressed) moveInput = 1f;
+            if (Keyboard.current.upArrowKey.wasPressedThisFrame && isGrounded)
+                jumpPressed = true;
+        }
 
         HandleFlip();
         HandleAnimations();
@@ -86,7 +99,16 @@ public class PlayerControllerPun : MonoBehaviourPun
 
     private void FixedUpdate()
     {
-        if (!photonView.IsMine || !alive) return;
+        if (!alive) return;
+
+        bool isSinglePlayer = PhotonNetwork.CurrentRoom != null &&
+                              PhotonNetwork.CurrentRoom.PlayerCount == 1;
+
+        bool canControl = isSinglePlayer ?
+                         PhotonNetwork.IsMasterClient :
+                         photonView.IsMine;
+
+        if (!canControl) return;
 
         CheckGround();
         Run();

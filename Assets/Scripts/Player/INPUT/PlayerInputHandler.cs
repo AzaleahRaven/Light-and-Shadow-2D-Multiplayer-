@@ -2,33 +2,50 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputHandler : MonoBehaviour
+public class PlayerInputHandler : MonoBehaviourPun
 {
-    private PhotonView photonView;
     private PlayerStats stats;
 
     public float MoveInput { get; private set; }
     public bool JumpPressed { get; private set; }
 
-    // Which control scheme to use
     public enum ControlScheme { WASD, ArrowKeys }
-    [HideInInspector] public ControlScheme controlScheme;
+
+    [SerializeField] private ControlScheme controlScheme = ControlScheme.WASD;
+
+    private bool isSinglePlayerMode = false;
 
     private void Awake()
     {
-        photonView = GetComponent<PhotonView>();
         stats = GetComponent<PlayerStats>();
+    }
+
+    private void Start()
+    {
+        if (PhotonNetwork.CurrentRoom != null)
+            isSinglePlayerMode = PhotonNetwork.CurrentRoom.PlayerCount == 1;
+
+        Debug.Log($"[InputHandler] {gameObject.name} | IsMine: {photonView.IsMine} | Scheme: {controlScheme} | SinglePlayer: {isSinglePlayerMode}");
+    }
+
+    // Called by RoomManagerPun after spawning
+    public void SetControlScheme(ControlScheme scheme)
+    {
+        controlScheme = scheme;
+        Debug.Log($"[InputHandler] {gameObject.name} control scheme set to: {scheme}");
     }
 
     private void Update()
     {
-        // In multiplayer: only control if this is your own character
-        // In single player: host controls BOTH characters
-        bool isSinglePlayer = PhotonNetwork.CurrentRoom != null &&
-                              PhotonNetwork.CurrentRoom.PlayerCount == 1;
+        if (PhotonNetwork.CurrentRoom != null)
+            isSinglePlayerMode = PhotonNetwork.CurrentRoom.PlayerCount == 1;
 
-        bool canControl = photonView.IsMine ||
-                         (isSinglePlayer && PhotonNetwork.IsMasterClient);
+        bool canControl = false;
+
+        if (isSinglePlayerMode && PhotonNetwork.IsMasterClient)
+            canControl = true; // Single player controls all
+        else
+            canControl = photonView.IsMine; // Multiplayer: own character only
 
         if (!canControl) return;
 
@@ -37,24 +54,24 @@ public class PlayerInputHandler : MonoBehaviour
 
     private void ReadInput()
     {
+        if (Keyboard.current == null) return;
+
         if (controlScheme == ControlScheme.WASD)
         {
-            // Sunling - WASD using New Input System
+            // Sunling - WASD
             float move = 0f;
             if (Keyboard.current.aKey.isPressed) move = -1f;
             if (Keyboard.current.dKey.isPressed) move = 1f;
             MoveInput = move;
-
             if (Keyboard.current.wKey.wasPressedThisFrame) JumpPressed = true;
         }
         else
         {
-            // Moonling - Arrow Keys using New Input System
+            // Moonling - Arrow Keys
             float move = 0f;
             if (Keyboard.current.leftArrowKey.isPressed) move = -1f;
             if (Keyboard.current.rightArrowKey.isPressed) move = 1f;
             MoveInput = move;
-
             if (Keyboard.current.upArrowKey.wasPressedThisFrame) JumpPressed = true;
         }
     }

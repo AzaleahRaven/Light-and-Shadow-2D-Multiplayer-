@@ -83,45 +83,64 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
     private void SpawnPlayer()
     {
         hasSpawned = true;
+        bool isSinglePlayer = PhotonNetwork.CurrentRoom.PlayerCount == 1;
 
-        // Always spawn Sunling for Actor 1 (host)
-        GameObject sunling = PhotonNetwork.Instantiate(
-            "Sunling",
-            sunlingSpawnPoint.position,
-            sunlingSpawnPoint.rotation
-        );
-
-        // Set Sunling to use WASD
-        var sunlingInput = sunling.GetComponent<PlayerInputHandler>();
-        if (sunlingInput != null)
-            sunlingInput.controlScheme = PlayerInputHandler.ControlScheme.WASD;
-
-        PhotonNetwork.LocalPlayer.NickName = "Player 1 - Sunling";
-
-        // If single player (only 1 player in room), also spawn Moonling locally
-        if (PhotonNetwork.CurrentRoom.PlayerCount == 1 && PhotonNetwork.IsMasterClient)
+        if (isSinglePlayer && PhotonNetwork.IsMasterClient)
         {
-            SpawnMoonlingForSinglePlayer();
+            // Single player: spawn BOTH characters
+            // Spawn Sunling with WASD
+            GameObject sunling = PhotonNetwork.Instantiate(
+                "Sunling",
+                sunlingSpawnPoint.position,
+                sunlingSpawnPoint.rotation
+            );
+            var sunlingInput = sunling.GetComponent<PlayerInputHandler>();
+            if (sunlingInput != null)
+                sunlingInput.SetControlScheme(PlayerInputHandler.ControlScheme.WASD);
+
+            // Spawn Moonling with Arrow Keys
+            GameObject moonling = PhotonNetwork.Instantiate(
+                "Moonling",
+                moonlingSpawnPoint.position,
+                moonlingSpawnPoint.rotation
+            );
+            var moonlingInput = moonling.GetComponent<PlayerInputHandler>();
+            if (moonlingInput != null)
+                moonlingInput.SetControlScheme(PlayerInputHandler.ControlScheme.ArrowKeys);
+
+            PhotonNetwork.LocalPlayer.NickName = "Player 1";
+            Debug.Log("[RoomManager] Single player: Spawned both Sunling (WASD) and Moonling (Arrows)");
         }
+        else
+        {
+            // Multiplayer: each player spawns their own character
+            if (PhotonNetwork.LocalPlayer.ActorNumber == 1)
+            {
+                GameObject sunling = PhotonNetwork.Instantiate(
+                    "Sunling",
+                    sunlingSpawnPoint.position,
+                    sunlingSpawnPoint.rotation
+                );
+                var sunlingInput = sunling.GetComponent<PlayerInputHandler>();
+                if (sunlingInput != null)
+                    sunlingInput.SetControlScheme(PlayerInputHandler.ControlScheme.WASD);
 
-        Debug.Log($"[RoomManager] Spawned Sunling. Room players: {PhotonNetwork.CurrentRoom.PlayerCount}");
-    }
+                PhotonNetwork.LocalPlayer.NickName = "Player 1 - Sunling";
+            }
+            else
+            {
+                GameObject moonling = PhotonNetwork.Instantiate(
+                    "Moonling",
+                    moonlingSpawnPoint.position,
+                    moonlingSpawnPoint.rotation
+                );
+                var moonlingInput = moonling.GetComponent<PlayerInputHandler>();
+                if (moonlingInput != null)
+                    moonlingInput.SetControlScheme(PlayerInputHandler.ControlScheme.ArrowKeys);
 
-    private void SpawnMoonlingForSinglePlayer()
-    {
-        // Spawn Moonling controlled by same player
-        GameObject moonling = PhotonNetwork.Instantiate(
-            "Moonling",
-            moonlingSpawnPoint.position,
-            moonlingSpawnPoint.rotation
-        );
-
-        // Set Moonling to use Arrow Keys
-        var moonlingInput = moonling.GetComponent<PlayerInputHandler>();
-        if (moonlingInput != null)
-            moonlingInput.controlScheme = PlayerInputHandler.ControlScheme.ArrowKeys;
-
-        Debug.Log("[RoomManager] Single player mode: Spawned Moonling with Arrow Keys");
+                PhotonNetwork.LocalPlayer.NickName = "Player 2 - Moonling";
+            }
+        }
     }
 
     private void ShowRoomCode()
@@ -146,25 +165,15 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
     private void OnReadyClicked()
     {
         bool currentReady = false;
-
         if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("isReady", out object val))
             currentReady = (bool)val;
 
         bool newReady = !currentReady;
-
         Hashtable props = new Hashtable { { "isReady", newReady } };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
 
         if (masterButtonText != null)
             masterButtonText.text = newReady ? "Unready" : "Ready";
-
-        // Single player: start immediately when ready
-        if (PhotonNetwork.CurrentRoom.PlayerCount == 1 && newReady)
-        {
-            PhotonNetwork.CurrentRoom.IsOpen = false;
-            Hashtable roomProps = new Hashtable { { "gameStarted", true } };
-            PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
-        }
     }
 
     private int GetReadyCount()
@@ -186,7 +195,7 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
         int total = PhotonNetwork.CurrentRoom.PlayerCount;
         readyText.text = ready + "/" + total;
 
-        // Start when all players ready (works for 1 or 2 players)
+        // Start when all players ready
         if (ready >= total && total > 0 && PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.CurrentRoom.IsOpen = false;

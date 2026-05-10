@@ -50,6 +50,7 @@ MonoBehaviour:
   - SyncNameRPC
   - PlayerFinishedRPC
   - DieRPC
+  - ShowResultRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -5,60 +5,86 @@ using UnityEngine;
 
 public class PlayerScore : MonoBehaviourPun
 {
-    public const string ScoreKey = "score";
-    public const int DiamondGoal = 3; // Need 3 diamonds to win
+    public const string SunlingScoreKey = "sunlingScore";
+    public const string MoonlingScoreKey = "moonlingScore";
+    public const string ScoreKey = "score"; // kept for compatibility
+    public const int DiamondGoal = 3;
 
     private bool gameEnded = false;
+    private bool isSunling = false;
 
     private void Start()
     {
+        // Check which character this is
+        isSunling = gameObject.CompareTag("Sunling");
+
         if (photonView.IsMine)
         {
-            Hashtable props = new Hashtable { { ScoreKey, 0 } };
+            // Reset scores at start
+            Hashtable props = new Hashtable
+            {
+                { SunlingScoreKey, 0 },
+                { MoonlingScoreKey, 0 },
+                { ScoreKey, 0 }
+            };
             PhotonNetwork.LocalPlayer.SetCustomProperties(props);
         }
     }
 
     public void AddScore(int amount)
     {
-        if (!photonView.IsMine || gameEnded) return;
+        if (gameEnded) return;
 
-        int currentScore = GetMyScore();
-        int newScore = currentScore + amount;
+        // Get current scores
+        int sunScore = GetScore(SunlingScoreKey);
+        int moonScore = GetScore(MoonlingScoreKey);
 
-        Hashtable props = new Hashtable { { ScoreKey, newScore } };
+        // Add to correct character score
+        if (isSunling)
+            sunScore += amount;
+        else
+            moonScore += amount;
+
+        // Update Photon properties
+        Hashtable props = new Hashtable
+        {
+            { SunlingScoreKey, sunScore },
+            { MoonlingScoreKey, moonScore },
+            { ScoreKey, sunScore + moonScore }
+        };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
 
-        Debug.Log($"[PlayerScore] Score updated: {newScore}/{DiamondGoal}");
+        Debug.Log($"[Score] Sunling: {sunScore} | Moonling: {moonScore}");
 
-        // Check if this player collected all diamonds
-        if (newScore >= DiamondGoal)
+        // Update UI immediately
+        if (ScoreUIManager.Instance != null)
+            ScoreUIManager.Instance.UpdateScoreUI();
+
+        // Check win
+        if (isSunling && sunScore >= DiamondGoal)
         {
-            photonView.RPC(nameof(PlayerFinishedRPC), RpcTarget.All,
-                          PhotonNetwork.LocalPlayer.ActorNumber);
+            gameEnded = true;
+            photonView.RPC(nameof(ShowResultRPC), RpcTarget.All, "Sunling", true);
+        }
+        else if (!isSunling && moonScore >= DiamondGoal)
+        {
+            gameEnded = true;
+            photonView.RPC(nameof(ShowResultRPC), RpcTarget.All, "Moonling", true);
         }
     }
 
-    public int GetMyScore()
+    private int GetScore(string key)
     {
-        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(ScoreKey, out object value))
-            return (int)value;
+        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(key, out object val))
+            return (int)val;
         return 0;
     }
 
     [PunRPC]
-    private void PlayerFinishedRPC(int actorNumber)
+    private void ShowResultRPC(string winner, bool isWin)
     {
         gameEnded = true;
-
-        if (ScoreUIManager.Instance == null) return;
-
-        // Find the player name
-        string playerName = actorNumber == 1 ? "Sunling" : "Moonling";
-
-        if (PhotonNetwork.LocalPlayer.ActorNumber == actorNumber)
-            ScoreUIManager.Instance.ShowResult($"{playerName} collected all diamonds!\nYOU WIN! 🎉");
-        else
-            ScoreUIManager.Instance.ShowResult($"{playerName} collected all diamonds!\nKeep going!");
+        if (ScoreUIManager.Instance != null)
+            ScoreUIManager.Instance.ShowResult($"{winner} collected all diamonds!\n🎉 YOU WIN! 🎉");
     }
 }

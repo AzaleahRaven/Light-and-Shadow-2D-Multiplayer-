@@ -10,12 +10,8 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
     public static ScoreUIManager Instance;
 
     [Header("Score Text")]
-    public TextMeshProUGUI player1ScoreText;
-    public TextMeshProUGUI player2ScoreText;
-
-    [Header("Diamond Count")]
-    public TextMeshProUGUI player1DiamondsText;
-    public TextMeshProUGUI player2DiamondsText;
+    public TextMeshProUGUI player1ScoreText; // Sunling
+    public TextMeshProUGUI player2ScoreText; // Moonling
 
     [Header("Result UI")]
     public GameObject resultPanel;
@@ -47,16 +43,6 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
         UpdateScoreUI();
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        UpdateScoreUI();
-    }
-
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
-        UpdateScoreUI();
-    }
-
     public void ShowResult(string message)
     {
         if (resultPanel != null)
@@ -67,31 +53,25 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
 
     public void UpdateScoreUI()
     {
-        Player[] players = PhotonNetwork.PlayerList;
+        // Get scores from local player properties
+        int sunScore = GetScore(PlayerScore.SunlingScoreKey);
+        int moonScore = GetScore(PlayerScore.MoonlingScoreKey);
 
-        if (players.Length > 0)
-        {
-            int score1 = GetPlayerScore(players[0]);
-            if (player1ScoreText != null)
-                player1ScoreText.text = "Sunling: " + score1;
-            if (player1DiamondsText != null)
-                player1DiamondsText.text = $"💎 {score1}/{PlayerScore.DiamondGoal}";
-        }
+        if (player1ScoreText != null)
+            player1ScoreText.text = $"Sunling: {sunScore}/{PlayerScore.DiamondGoal}";
 
-        if (players.Length > 1)
-        {
-            int score2 = GetPlayerScore(players[1]);
-            if (player2ScoreText != null)
-                player2ScoreText.text = "Moonling: " + score2;
-            if (player2DiamondsText != null)
-                player2DiamondsText.text = $"💎 {score2}/{PlayerScore.DiamondGoal}";
-        }
+        if (player2ScoreText != null)
+            player2ScoreText.text = $"Moonling: {moonScore}/{PlayerScore.DiamondGoal}";
     }
 
-    private int GetPlayerScore(Player player)
+    private int GetScore(string key)
     {
-        if (player.CustomProperties.TryGetValue(PlayerScore.ScoreKey, out object value))
-            return (int)value;
+        // Check all players for the score
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            if (player.CustomProperties.TryGetValue(key, out object val))
+                return (int)val;
+        }
         return 0;
     }
 

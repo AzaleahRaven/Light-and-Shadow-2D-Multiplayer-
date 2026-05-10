@@ -1,8 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
 
-// Attach this to ALL ground objects
-// It checks who touches it and kills accordingly
 public class HazardGround : MonoBehaviour
 {
     private GroundType groundType;
@@ -26,45 +24,43 @@ public class HazardGround : MonoBehaviour
     {
         if (groundType == null) return;
 
-        // Get the PlayerControllerPun on the object
+        // Get PlayerControllerPun directly
         PlayerControllerPun player = obj.GetComponent<PlayerControllerPun>();
         if (player == null) return;
 
-        // Only the master client handles death to avoid double kills
-        if (!PhotonNetwork.IsMasterClient) return;
+        // Only the owner kills themselves
+        PhotonView pv = obj.GetComponent<PhotonView>();
+        if (pv == null || !pv.IsMine) return;
 
         bool isSunling = obj.CompareTag("Sunling");
         bool isMoonling = obj.CompareTag("Moonling");
 
+        bool shouldDie = false;
+
         switch (groundType.groundType)
         {
             case GroundType.Type.Poison:
-                // Both die on poison
-                KillPlayer(obj);
+                shouldDie = true;
                 break;
-
             case GroundType.Type.Sunling:
-                // Only Moonling dies on yellow ground
-                if (isMoonling) KillPlayer(obj);
+                // Yellow ground kills Moonling only
+                if (isMoonling) shouldDie = true;
                 break;
-
             case GroundType.Type.Moonling:
-                // Only Sunling dies on blue ground
-                if (isSunling) KillPlayer(obj);
+                // Blue ground kills Sunling only
+                if (isSunling) shouldDie = true;
                 break;
-
             case GroundType.Type.Normal:
-                // Nobody dies on normal ground
+                shouldDie = false;
                 break;
         }
-    }
 
-    private void KillPlayer(GameObject player)
-    {
-        PhotonView pv = player.GetComponent<PhotonView>();
-        if (pv != null)
+        if (shouldDie)
         {
-            pv.RPC("DieRPC", RpcTarget.All);
+            // Call DieRPC directly on the component
+            player.DieRPC();
+            pv.RPC("DieRPC", RpcTarget.Others);
+            Debug.Log($"[HazardGround] {obj.name} touched {groundType.groundType} ground and died!");
         }
     }
 }

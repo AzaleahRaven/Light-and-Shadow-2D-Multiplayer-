@@ -1,6 +1,6 @@
 using Photon.Pun;
-using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -21,6 +21,9 @@ public class PlayerControllerPun : MonoBehaviourPun
     [SerializeField] private Camera playerCamera;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
+    public enum ControlScheme { WASD, ArrowKeys }
+    [SerializeField] public ControlScheme controlScheme = ControlScheme.WASD;
+
     private Rigidbody2D rb;
     private Animator anim;
     private PlayerScore playerScore;
@@ -29,10 +32,6 @@ public class PlayerControllerPun : MonoBehaviourPun
     private bool jumpPressed;
     private bool isGrounded;
     private bool alive = true;
-
-    // Control type set on prefab
-    public enum ControlScheme { WASD, ArrowKeys }
-    [SerializeField] public ControlScheme controlScheme = ControlScheme.WASD;
 
     private void Awake()
     {
@@ -48,7 +47,6 @@ public class PlayerControllerPun : MonoBehaviourPun
 
         if (!isSinglePlayer && !photonView.IsMine)
         {
-            // Multiplayer: disable camera and physics for remote players
             if (playerCamera != null)
                 playerCamera.gameObject.SetActive(false);
             rb.bodyType = RigidbodyType2D.Kinematic;
@@ -57,8 +55,6 @@ public class PlayerControllerPun : MonoBehaviourPun
 
         if (playerCamera != null)
             playerCamera.gameObject.SetActive(photonView.IsMine);
-
-        Debug.Log($"[PlayerControllerPun] {gameObject.name} | Scheme: {controlScheme}");
     }
 
     private void Update()
@@ -75,7 +71,6 @@ public class PlayerControllerPun : MonoBehaviourPun
 
         if (!canControl) return;
 
-        // Read input based on control scheme
         moveInput = 0f;
 
         if (controlScheme == ControlScheme.WASD)
@@ -85,7 +80,7 @@ public class PlayerControllerPun : MonoBehaviourPun
             if (Keyboard.current.wKey.wasPressedThisFrame && isGrounded)
                 jumpPressed = true;
         }
-        else // ArrowKeys
+        else
         {
             if (Keyboard.current.leftArrowKey.isPressed) moveInput = -1f;
             if (Keyboard.current.rightArrowKey.isPressed) moveInput = 1f;
@@ -149,6 +144,38 @@ public class PlayerControllerPun : MonoBehaviourPun
     {
         bool isRunning = Mathf.Abs(moveInput) > 0.1f && !anim.GetBool("isJump");
         anim.SetBool("isRun", isRunning);
+    }
+
+    // PUBLIC so HazardGround can call it directly
+    [PunRPC]
+    public void DieRPC()
+    {
+        if (!alive) return;
+        alive = false;
+
+        Debug.Log($"[PlayerControllerPun] {gameObject.name} DIED!");
+
+        // Stop movement
+        rb.linearVelocity = Vector2.zero;
+        rb.bodyType = RigidbodyType2D.Static;
+
+        // Hide player
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = false;
+
+        // Notify ScoreUIManager
+        if (ScoreUIManager.Instance != null)
+            ScoreUIManager.Instance.ShowResult(gameObject.name + " died!");
+
+        // Destroy after delay
+        if (photonView.IsMine)
+            StartCoroutine(DestroyAfterDelay(0.5f));
+    }
+
+    private System.Collections.IEnumerator DestroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        PhotonNetwork.Destroy(gameObject);
     }
 
     [PunRPC]

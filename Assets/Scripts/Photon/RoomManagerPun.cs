@@ -25,6 +25,8 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject startupPanel;
     [SerializeField] private GameObject playerHUD;
 
+    private bool hasSpawned = false;
+
     private void Awake()
     {
         if (PhotonNetwork.PrefabPool is CustomPrefabPool pool)
@@ -39,7 +41,7 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        if (PhotonNetwork.InRoom)
+        if (PhotonNetwork.InRoom && !hasSpawned)
         {
             SpawnPlayer();
             ShowRoomCode();
@@ -50,10 +52,13 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        SpawnPlayer();
-        ShowRoomCode();
-        SetupMasterButton();
-        UpdateReadyText();
+        if (!hasSpawned)
+        {
+            SpawnPlayer();
+            ShowRoomCode();
+            SetupMasterButton();
+            UpdateReadyText();
+        }
 
         if (startupPanel != null) startupPanel.SetActive(true);
         if (playerHUD != null) playerHUD.SetActive(false);
@@ -67,7 +72,6 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdateReadyText();
-        ShowRoomCode();
     }
 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
@@ -78,45 +82,65 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
 
     private void SpawnPlayer()
     {
-        string tag = PhotonNetwork.LocalPlayer.ActorNumber == 1 ? "Sunling" : "Moonling";
-        if (GameObject.FindGameObjectWithTag(tag) != null) return;
+        hasSpawned = true;
 
-        string prefabId;
-        Transform spawnPoint;
-        string nickname;
+        // Always spawn Sunling for Actor 1 (host)
+        GameObject sunling = PhotonNetwork.Instantiate(
+            "Sunling",
+            sunlingSpawnPoint.position,
+            sunlingSpawnPoint.rotation
+        );
 
-        if (PhotonNetwork.LocalPlayer.ActorNumber == 1)
+        // Set Sunling to use WASD
+        var sunlingInput = sunling.GetComponent<PlayerInputHandler>();
+        if (sunlingInput != null)
+            sunlingInput.controlScheme = PlayerInputHandler.ControlScheme.WASD;
+
+        PhotonNetwork.LocalPlayer.NickName = "Player 1 - Sunling";
+
+        // If single player (only 1 player in room), also spawn Moonling locally
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 1 && PhotonNetwork.IsMasterClient)
         {
-            prefabId = "Sunling";
-            spawnPoint = sunlingSpawnPoint;
-            nickname = "Player 1 - Sunling";
-        }
-        else
-        {
-            prefabId = "Moonling";
-            spawnPoint = moonlingSpawnPoint;
-            nickname = "Player 2 - Moonling";
+            SpawnMoonlingForSinglePlayer();
         }
 
-        PhotonNetwork.LocalPlayer.NickName = nickname;
-        PhotonNetwork.Instantiate(prefabId, spawnPoint.position, spawnPoint.rotation);
+        Debug.Log($"[RoomManager] Spawned Sunling. Room players: {PhotonNetwork.CurrentRoom.PlayerCount}");
+    }
+
+    private void SpawnMoonlingForSinglePlayer()
+    {
+        // Spawn Moonling controlled by same player
+        GameObject moonling = PhotonNetwork.Instantiate(
+            "Moonling",
+            moonlingSpawnPoint.position,
+            moonlingSpawnPoint.rotation
+        );
+
+        // Set Moonling to use Arrow Keys
+        var moonlingInput = moonling.GetComponent<PlayerInputHandler>();
+        if (moonlingInput != null)
+            moonlingInput.controlScheme = PlayerInputHandler.ControlScheme.ArrowKeys;
+
+        Debug.Log("[RoomManager] Single player mode: Spawned Moonling with Arrow Keys");
     }
 
     private void ShowRoomCode()
     {
-        if (roomCodeText == null) return;
-
-        if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("roomCode"))
-            roomCodeText.text = (string)PhotonNetwork.CurrentRoom.CustomProperties["roomCode"];
-        else
-            roomCodeText.text = PhotonNetwork.CurrentRoom.Name;
+        if (roomCodeText != null && PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("roomCode"))
+        {
+            string code = (string)PhotonNetwork.CurrentRoom.CustomProperties["roomCode"];
+            roomCodeText.text = code;
+        }
     }
 
     private void SetupMasterButton()
     {
-        masterButtonText.text = "Ready";
-        masterButton.onClick.RemoveAllListeners();
-        masterButton.onClick.AddListener(OnReadyClicked);
+        if (masterButtonText != null) masterButtonText.text = "Ready";
+        if (masterButton != null)
+        {
+            masterButton.onClick.RemoveAllListeners();
+            masterButton.onClick.AddListener(OnReadyClicked);
+        }
     }
 
     private void OnReadyClicked()
@@ -131,7 +155,16 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
         Hashtable props = new Hashtable { { "isReady", newReady } };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
 
-        masterButtonText.text = newReady ? "Unready" : "Ready";
+        if (masterButtonText != null)
+            masterButtonText.text = newReady ? "Unready" : "Ready";
+
+        // Single player: start immediately when ready
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 1 && newReady)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            Hashtable roomProps = new Hashtable { { "gameStarted", true } };
+            PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
+        }
     }
 
     private int GetReadyCount()
@@ -153,10 +186,10 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
         int total = PhotonNetwork.CurrentRoom.PlayerCount;
         readyText.text = ready + "/" + total;
 
-        if (ready >= 2 && PhotonNetwork.IsMasterClient)
+        // Start when all players ready (works for 1 or 2 players)
+        if (ready >= total && total > 0 && PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.CurrentRoom.IsOpen = false;
-
             Hashtable roomProps = new Hashtable { { "gameStarted", true } };
             PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
         }
@@ -166,8 +199,5 @@ public class RoomManagerPun : MonoBehaviourPunCallbacks
     {
         if (startupPanel != null) startupPanel.SetActive(false);
         if (playerHUD != null) playerHUD.SetActive(true);
-
-        if (PhotonNetwork.IsMasterClient)
-            PhotonNetwork.LoadLevel("GamePlay");
     }
 }

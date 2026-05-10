@@ -125,9 +125,7 @@ public class LauncherPun : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        UpdateStatus("Joined room: " + PhotonNetwork.CurrentRoom.Name);
-        UpdateJoinStatus("");
-        // DO NOT load scene here - RoomManagerPun handles it via ready system
+        PhotonNetwork.LoadLevel("GamePlay");
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)

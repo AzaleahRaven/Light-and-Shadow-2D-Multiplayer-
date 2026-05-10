@@ -297,3 +297,4 @@ MonoBehaviour:
     m_Bits: 8
   playerCamera: {fileID: 0}
   spriteRenderer: {fileID: 7643075789289768356}
+  controlScheme: 1

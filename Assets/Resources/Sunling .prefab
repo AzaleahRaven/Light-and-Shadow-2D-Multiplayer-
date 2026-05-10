@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6437328811638162829}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 3443629218296621865, guid: 0000000000000000d000000000000000, type: 0}
@@ -48,7 +48,7 @@ GameObject:
   - component: {fileID: -3348598211093111024}
   - component: {fileID: -7286984214241876332}
   - component: {fileID: 3181915585036811856}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: 'Sunling '
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -264,7 +264,7 @@ Animator:
   m_GameObject: {fileID: 7866885747088265537}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f0152fc226bd88b4f91093876bf41042, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

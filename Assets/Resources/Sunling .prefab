@@ -50,7 +50,7 @@ GameObject:
   - component: {fileID: 3181915585036811856}
   m_Layer: 3
   m_Name: 'Sunling '
-  m_TagString: Player
+  m_TagString: Sunling
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

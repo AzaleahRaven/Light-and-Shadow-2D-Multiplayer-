@@ -1,4 +1,4 @@
-using ExitGames.Client.Photon;
+﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerScore : MonoBehaviourPun
 {
     public const string ScoreKey = "score";
-    public const int WinScore = 10;
+    public const int DiamondGoal = 3; // Need 3 diamonds to win
 
     private bool gameEnded = false;
 
@@ -14,11 +14,7 @@ public class PlayerScore : MonoBehaviourPun
     {
         if (photonView.IsMine)
         {
-            Hashtable props = new Hashtable
-            {
-                { ScoreKey, 0 }
-            };
-
+            Hashtable props = new Hashtable { { ScoreKey, 0 } };
             PhotonNetwork.LocalPlayer.SetCustomProperties(props);
         }
     }
@@ -30,37 +26,39 @@ public class PlayerScore : MonoBehaviourPun
         int currentScore = GetMyScore();
         int newScore = currentScore + amount;
 
-        Hashtable props = new Hashtable
-        {
-            { ScoreKey, newScore }
-        };
-
+        Hashtable props = new Hashtable { { ScoreKey, newScore } };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
 
-        if (newScore >= WinScore)
+        Debug.Log($"[PlayerScore] Score updated: {newScore}/{DiamondGoal}");
+
+        // Check if this player collected all diamonds
+        if (newScore >= DiamondGoal)
         {
-            photonView.RPC(nameof(ShowWinLoseRPC), RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
+            photonView.RPC(nameof(PlayerFinishedRPC), RpcTarget.All,
+                          PhotonNetwork.LocalPlayer.ActorNumber);
         }
     }
 
-    private int GetMyScore()
+    public int GetMyScore()
     {
         if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(ScoreKey, out object value))
             return (int)value;
-
         return 0;
     }
 
     [PunRPC]
-    private void ShowWinLoseRPC(int winnerActorNumber)
+    private void PlayerFinishedRPC(int actorNumber)
     {
         gameEnded = true;
 
         if (ScoreUIManager.Instance == null) return;
 
-        if (PhotonNetwork.LocalPlayer.ActorNumber == winnerActorNumber)
-            ScoreUIManager.Instance.ShowResult("YOU WIN");
+        // Find the player name
+        string playerName = actorNumber == 1 ? "Sunling" : "Moonling";
+
+        if (PhotonNetwork.LocalPlayer.ActorNumber == actorNumber)
+            ScoreUIManager.Instance.ShowResult($"{playerName} collected all diamonds!\nYOU WIN! 🎉");
         else
-            ScoreUIManager.Instance.ShowResult("YOU LOSE");
+            ScoreUIManager.Instance.ShowResult($"{playerName} collected all diamonds!\nKeep going!");
     }
 }

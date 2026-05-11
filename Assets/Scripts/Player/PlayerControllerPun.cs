@@ -1,6 +1,6 @@
 using Photon.Pun;
-using UnityEngine.InputSystem;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -146,7 +146,6 @@ public class PlayerControllerPun : MonoBehaviourPun
         anim.SetBool("isRun", isRunning);
     }
 
-    // PUBLIC so HazardGround can call it directly
     [PunRPC]
     public void DieRPC()
     {
@@ -163,9 +162,9 @@ public class PlayerControllerPun : MonoBehaviourPun
         if (spriteRenderer != null)
             spriteRenderer.enabled = false;
 
-        // Notify ScoreUIManager
-        if (ScoreUIManager.Instance != null)
-            ScoreUIManager.Instance.ShowResult(gameObject.name + " died!");
+        // Show lose panel via LoseManager
+        if (LoseManager.Instance != null)
+            LoseManager.Instance.OnPlayerDied(gameObject.name);
 
         // Destroy after delay
         if (photonView.IsMine)

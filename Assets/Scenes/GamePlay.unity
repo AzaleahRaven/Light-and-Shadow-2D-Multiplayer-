@@ -455,6 +455,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &21446315
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -911,6 +912,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &293765595
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1155,6 +1157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &385185124
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1640,6 +1643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &491668364
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1911,6 +1915,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &615077905
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2122,6 +2127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &667088402
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2546,6 +2552,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &752988407
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2848,6 +2855,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &810471361
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3115,6 +3123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &838617467
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3265,6 +3274,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &850476282
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3445,6 +3455,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &861521739
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3595,6 +3606,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 2
+  autoSetColor: 0
 --- !u!61 &934801252
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3760,6 +3772,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &948630068
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4838,6 +4851,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!1 &1210500355
 GameObject:
   m_ObjectHideFlags: 0
@@ -4898,6 +4912,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &1210500359
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5135,6 +5150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 1
+  autoSetColor: 0
 --- !u!61 &1474944880
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5315,6 +5331,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &1530149677
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5480,6 +5497,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &1673434115
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5892,6 +5910,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &1802696912
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6224,6 +6243,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 0
+  autoSetColor: 0
 --- !u!61 &1914922280
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6614,6 +6634,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GroundType
   groundType: 3
+  autoSetColor: 0
 --- !u!61 &1984609109
 BoxCollider2D:
   m_ObjectHideFlags: 0

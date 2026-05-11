@@ -1,15 +1,19 @@
 using UnityEngine;
 
-// Attach this to any ground/platform object
 public class GroundType : MonoBehaviour
 {
     public enum Type { Normal, Sunling, Moonling, Poison }
 
     [SerializeField] public Type groundType = Type.Normal;
 
+    [Tooltip("Auto set color based on ground type")]
+    [SerializeField] private bool autoSetColor = false;
+
     private void Start()
     {
-        // Auto set color based on type
+        // Only auto-set color if you want it
+        if (!autoSetColor) return;
+
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr == null) return;
 

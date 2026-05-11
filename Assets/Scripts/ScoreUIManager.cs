@@ -10,8 +10,8 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
     public static ScoreUIManager Instance;
 
     [Header("Score Text")]
-    public TextMeshProUGUI player1ScoreText; // Sunling
-    public TextMeshProUGUI player2ScoreText; // Moonling
+    public TextMeshProUGUI player1ScoreText; // Light
+    public TextMeshProUGUI player2ScoreText; // Shadow
 
     [Header("Result UI")]
     public GameObject resultPanel;
@@ -54,14 +54,14 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
     public void UpdateScoreUI()
     {
         // Get scores from local player properties
-        int sunScore = GetScore(PlayerScore.SunlingScoreKey);
-        int moonScore = GetScore(PlayerScore.MoonlingScoreKey);
+        int lightScore = GetScore(PlayerScore.SunlingScoreKey);
+        int shadowScore = GetScore(PlayerScore.MoonlingScoreKey);
 
         if (player1ScoreText != null)
-            player1ScoreText.text = $"Sunling: {sunScore}/{PlayerScore.DiamondGoal}";
+            player1ScoreText.text = $"Light: {lightScore}/{PlayerScore.DiamondGoal}";
 
         if (player2ScoreText != null)
-            player2ScoreText.text = $"Moonling: {moonScore}/{PlayerScore.DiamondGoal}";
+            player2ScoreText.text = $"Shadow: {shadowScore}/{PlayerScore.DiamondGoal}";
     }
 
     private int GetScore(string key)

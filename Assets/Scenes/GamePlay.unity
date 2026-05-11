@@ -7731,7 +7731,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ea37d38679a2eb41a5fdaf9cdcff1d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoinPickup
-  diamondType: 2
+  diamondType: 0
   scoreValue: 1
 --- !u!4 &830413549 stripped
 Transform:
@@ -8565,7 +8565,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ea37d38679a2eb41a5fdaf9cdcff1d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoinPickup
-  diamondType: 2
+  diamondType: 1
   scoreValue: 1
 --- !u!4 &976603336 stripped
 Transform:
@@ -10899,7 +10899,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ea37d38679a2eb41a5fdaf9cdcff1d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoinPickup
-  diamondType: 2
+  diamondType: 0
   scoreValue: 1
 --- !u!4 &1187425971 stripped
 Transform:
@@ -11031,7 +11031,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ea37d38679a2eb41a5fdaf9cdcff1d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoinPickup
-  diamondType: 2
+  diamondType: 0
   scoreValue: 1
 --- !u!4 &1265563559 stripped
 Transform:
@@ -13032,7 +13032,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ea37d38679a2eb41a5fdaf9cdcff1d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoinPickup
-  diamondType: 2
+  diamondType: 1
   scoreValue: 1
 --- !u!4 &1677245293 stripped
 Transform:
@@ -15854,7 +15854,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ea37d38679a2eb41a5fdaf9cdcff1d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoinPickup
-  diamondType: 2
+  diamondType: 1
   scoreValue: 1
 --- !u!4 &1959387116 stripped
 Transform:

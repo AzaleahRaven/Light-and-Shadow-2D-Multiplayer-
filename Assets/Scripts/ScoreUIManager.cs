@@ -10,14 +10,10 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
     public static ScoreUIManager Instance;
 
     [Header("Score Text")]
-    public TextMeshProUGUI player1ScoreText; // Light
-    public TextMeshProUGUI player2ScoreText; // Shadow
+    public TextMeshProUGUI player1ScoreText;
+    public TextMeshProUGUI player2ScoreText;
 
-    [Header("Result UI")]
-    public GameObject resultPanel;
-    public TextMeshProUGUI resultText;
-    public Button restartButton;
-    public Button quitButton;
+    // NO result panel here - that is handled by WinManager only!
 
     private void Awake()
     {
@@ -26,15 +22,6 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        if (resultPanel != null)
-            resultPanel.SetActive(false);
-
-        if (restartButton != null)
-            restartButton.onClick.AddListener(RestartGame);
-
-        if (quitButton != null)
-            quitButton.onClick.AddListener(QuitToLobby);
-
         UpdateScoreUI();
     }
 
@@ -43,47 +30,29 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
         UpdateScoreUI();
     }
 
-    public void ShowResult(string message)
-    {
-        if (resultPanel != null)
-            resultPanel.SetActive(true);
-        if (resultText != null)
-            resultText.text = message;
-    }
-
+    // ONLY updates score display - NO WIN CHECK
     public void UpdateScoreUI()
     {
-        // Get scores from local player properties
-        int lightScore = GetScore(PlayerScore.SunlingScoreKey);
-        int shadowScore = GetScore(PlayerScore.MoonlingScoreKey);
+        int sunScore = 0;
+        int moonScore = 0;
 
-        if (player1ScoreText != null)
-            player1ScoreText.text = $"Light: {lightScore}/{PlayerScore.DiamondGoal}";
-
-        if (player2ScoreText != null)
-            player2ScoreText.text = $"Shadow: {shadowScore}/{PlayerScore.DiamondGoal}";
-    }
-
-    private int GetScore(string key)
-    {
-        // Check all players for the score
         foreach (var player in PhotonNetwork.PlayerList)
         {
-            if (player.CustomProperties.TryGetValue(key, out object val))
-                return (int)val;
+            if (player.CustomProperties.TryGetValue(
+                PlayerScore.SunlingScoreKey, out object s))
+                sunScore = (int)s;
+
+            if (player.CustomProperties.TryGetValue(
+                PlayerScore.MoonlingScoreKey, out object m))
+                moonScore = (int)m;
         }
-        return 0;
+
+        if (player1ScoreText != null)
+            player1ScoreText.text = $"Sunling: {sunScore}/{PlayerScore.DiamondGoal}";
+
+        if (player2ScoreText != null)
+            player2ScoreText.text = $"Moonling: {moonScore}/{PlayerScore.DiamondGoal}";
     }
 
-    private void RestartGame()
-    {
-        if (PhotonNetwork.IsMasterClient)
-            PhotonNetwork.LoadLevel("GamePlay");
-    }
-
-    private void QuitToLobby()
-    {
-        PhotonNetwork.LeaveRoom();
-        PhotonNetwork.LoadLevel("Lobby");
-    }
+    // REMOVED ShowResult - WinManager handles all win UI now
 }

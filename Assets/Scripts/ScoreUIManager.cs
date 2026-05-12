@@ -13,7 +13,6 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
     public TextMeshProUGUI player1ScoreText;
     public TextMeshProUGUI player2ScoreText;
 
-    // NO result panel here - that is handled by WinManager only!
 
     private void Awake()
     {
@@ -48,10 +47,10 @@ public class ScoreUIManager : MonoBehaviourPunCallbacks
         }
 
         if (player1ScoreText != null)
-            player1ScoreText.text = $"Sunling: {sunScore}/{PlayerScore.DiamondGoal}";
+            player1ScoreText.text = $"Light: {sunScore}/{PlayerScore.DiamondGoal}";
 
         if (player2ScoreText != null)
-            player2ScoreText.text = $"Moonling: {moonScore}/{PlayerScore.DiamondGoal}";
+            player2ScoreText.text = $"Shadow: {moonScore}/{PlayerScore.DiamondGoal}";
     }
 
     // REMOVED ShowResult - WinManager handles all win UI now

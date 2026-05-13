@@ -8252,8 +8252,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dc9bb1e7fed4fe4eb2f4e49b669b757, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomManagerPun
-  sunlingPrefab: {fileID: 7866885747088265537, guid: 1daaaf379b2aca2418b29666c47b1ffa, type: 3}
-  moonlingPrefab: {fileID: 5803260221267551767, guid: cdc0d4807cd7e894298f6eb4cbf898ed, type: 3}
+  sunlingPrefab: {fileID: 1791211314}
+  moonlingPrefab: {fileID: 1487320430}
   sunlingSpawnPoint: {fileID: 435764775}
   moonlingSpawnPoint: {fileID: 1000181548}
   roomCodeText: {fileID: 1887297318}
@@ -11854,6 +11854,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cdc0d4807cd7e894298f6eb4cbf898ed, type: 3}
+--- !u!1 &1487320430 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5803260221267551767, guid: cdc0d4807cd7e894298f6eb4cbf898ed, type: 3}
+  m_PrefabInstance: {fileID: 1487320429}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1506933863
 GameObject:
   m_ObjectHideFlags: 0
@@ -14615,6 +14620,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1daaaf379b2aca2418b29666c47b1ffa, type: 3}
+--- !u!1 &1791211314 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7866885747088265537, guid: 1daaaf379b2aca2418b29666c47b1ffa, type: 3}
+  m_PrefabInstance: {fileID: 1791211313}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1823954458
 GameObject:
   m_ObjectHideFlags: 0
